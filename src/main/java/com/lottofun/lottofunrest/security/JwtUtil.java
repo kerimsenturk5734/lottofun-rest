@@ -1,6 +1,7 @@
 package com.lottofun.lottofunrest.security;
 
 import com.lottofun.lottofunrest.config.JwtConfig;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -57,6 +58,20 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
+    }
+
+    /**
+     * Extract claims from Jwt Token
+     *
+     * @param token the JWT token to get claims
+     * @return Claims if the token is valid
+     */
+    public Claims getClaims(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
     }
 
     /**

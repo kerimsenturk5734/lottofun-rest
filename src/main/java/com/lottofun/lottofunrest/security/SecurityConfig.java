@@ -38,20 +38,16 @@ public class SecurityConfig {
                 //Disable CSRF, CORS, Login Form
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(Customizer.withDefaults())
+                .formLogin(AbstractHttpConfigurer::disable)
 
-                //Authorize the requests coming to endpoints at the matchers pattern
-                .authorizeHttpRequests(x -> x
-
-                        //Allow every user to want to log in, register endpoints
-                        .requestMatchers("/api/v1/auth/**", "/login").permitAll()
-
-                        //Authenticate the all other requests coming to API except the endpoints indicated above
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/v1/auth/login", "/api/v1/auth/register").permitAll()
+                        //Allow swagger docs
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated()
                 )
 
                 .sessionManagement(x -> x.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
                 // Add Jwt Filter
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

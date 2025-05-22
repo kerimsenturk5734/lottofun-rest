@@ -1,4 +1,6 @@
 package com.lottofun.lottofunrest.dto.response;
 
-public record LoginResponse() {
+import java.util.Date;
+
+public record LoginResponse(String token, Date expireAt) {
 }

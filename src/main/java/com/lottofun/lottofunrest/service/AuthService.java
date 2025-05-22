@@ -6,36 +6,47 @@ import com.lottofun.lottofunrest.dto.request.RegisterRequest;
 import com.lottofun.lottofunrest.dto.response.LoginResponse;
 import com.lottofun.lottofunrest.model.User;
 import com.lottofun.lottofunrest.repository.UserRepository;
+import com.lottofun.lottofunrest.security.JwtUtil;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
+import java.util.Date;
 
 @Service
 public class AuthService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtUtil jwtUtil;
 
-    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
+
+    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.authenticationManager = authenticationManager;
+        this.jwtUtil = jwtUtil;
     }
 
     public LoginResponse login(LoginRequest request) {
-        // Get User by username
-        Optional<User> userOpt = userRepository.findByUsername(request.username());
+        // Get authentication via authentication manager
+        Authentication auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.username(), request.password()));
 
-        // throw if user not found
-        if (userOpt.isEmpty()) throw new RuntimeException("User not found");
+        // generate token if user authenticated
+        if (auth.isAuthenticated()){
 
-        // get user if presented
-        User user = userOpt.get();
+            // Build response data
+            String token = jwtUtil.generateToken(request.username());
+            Date expiryAt = jwtUtil.getClaims(token).getExpiration();
 
-        // match passwords
-        if (!passwordEncoder.matches(request.password(), user.getPassword())) throw new RuntimeException("Invalid credentials");
+            return new LoginResponse(token, expiryAt);
+        }
 
-        // return response
-        return new LoginResponse();
+        throw new UsernameNotFoundException("User Id or password incorrect");
     }
 
     public UserDto register(RegisterRequest request) {
