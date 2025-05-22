@@ -6,6 +6,7 @@ import com.lottofun.lottofunrest.dto.request.RegisterRequest;
 import com.lottofun.lottofunrest.dto.response.LoginResponse;
 import com.lottofun.lottofunrest.model.User;
 import com.lottofun.lottofunrest.repository.UserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -13,9 +14,11 @@ import java.util.Optional;
 @Service
 public class AuthService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public AuthService(UserRepository userRepository) {
+    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public LoginResponse login(LoginRequest request) {
@@ -29,7 +32,7 @@ public class AuthService {
         User user = userOpt.get();
 
         // match passwords
-        if (!request.password().equals(user.getPassword())) throw new RuntimeException("Invalid credentials");
+        if (!passwordEncoder.matches(request.password(), user.getPassword())) throw new RuntimeException("Invalid credentials");
 
         // return response
         return new LoginResponse();
@@ -47,7 +50,7 @@ public class AuthService {
                 .name(request.name())
                 .surname(request.surname())
                 .username(request.username())
-                .password(request.password()).build();
+                .password(passwordEncoder.encode(request.password())).build();
 
         // create user
         User createdUser = userRepository.save(user);
