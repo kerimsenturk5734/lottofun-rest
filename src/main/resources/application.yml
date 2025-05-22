@@ -6,7 +6,7 @@ spring:
     name: lottofun-rest
 
   datasource:
-    url: jdbc:mysql://localhost:3308/lottofun?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3308/lottofun?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: my-secret-pw
     driver-class-name: com.mysql.cj.jdbc.Driver
