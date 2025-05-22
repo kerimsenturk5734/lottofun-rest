@@ -1,7 +1,9 @@
 package com.lottofun.lottofunrest.controller;
 
+import com.lottofun.lottofunrest.dto.UserDto;
 import com.lottofun.lottofunrest.dto.request.LoginRequest;
-import com.lottofun.lottofunrest.dto.request.LoginResponse;
+import com.lottofun.lottofunrest.dto.request.RegisterRequest;
+import com.lottofun.lottofunrest.dto.response.LoginResponse;
 import com.lottofun.lottofunrest.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,5 +24,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));
+    }
+    @PostMapping("/register")
+    public ResponseEntity<UserDto> register(@RequestBody RegisterRequest registerRequest) {
+        return ResponseEntity.ok(authService.register(registerRequest));
     }
 }
