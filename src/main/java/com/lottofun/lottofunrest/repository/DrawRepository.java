@@ -1,0 +1,13 @@
+package com.lottofun.lottofunrest.repository;
+
+import com.lottofun.lottofunrest.model.Draw;
+import com.lottofun.lottofunrest.model.DrawStatus;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+import java.util.List;
+
+@Repository
+public interface DrawRepository extends JpaRepository<Draw, Integer> {
+    List<Draw> findAllByStatusInOrderByDrawDate(List<DrawStatus> statusList);
+}
