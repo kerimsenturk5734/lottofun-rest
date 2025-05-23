@@ -36,17 +36,13 @@ public class AuthService {
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password()));
 
-        // generate token if user authenticated
-        if (auth.isAuthenticated()){
+        // if above line can't authenticate the user it will throw exception !!!
 
-            // Build response data
-            String token = jwtUtil.generateToken(request.username());
-            Date expiryAt = jwtUtil.getClaims(token).getExpiration();
+        // generate token
+        String token = jwtUtil.generateToken(request.username());
+        Date expiryAt = jwtUtil.getClaims(token).getExpiration();
 
-            return new LoginResponse(token, expiryAt);
-        }
-
-        throw new UsernameNotFoundException("User Id or password incorrect");
+        return new LoginResponse(token, expiryAt);
     }
 
     public UserDto register(RegisterRequest request) {

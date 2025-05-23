@@ -1,5 +1,6 @@
 package com.lottofun.lottofunrest.security;
 
+import com.lottofun.lottofunrest.exception.NotFoundException;
 import com.lottofun.lottofunrest.model.User;
 import com.lottofun.lottofunrest.repository.UserRepository;
 import com.lottofun.lottofunrest.service.UserService;
@@ -19,14 +20,19 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Find user by username. Throw not found if not exist
-        User user = userService.getUserByUsername(username);
+        try {
+            // Find user by username. Throw not found if not exist
+            User user = userService.getUserByUsername(username);
 
-        // create UserDetails and return
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getUsername())
-                .password(user.getPassword())
-                .authorities("USER") // use user role if you implement role-based authorization
-                .build();
+            // create UserDetails and return
+            return org.springframework.security.core.userdetails.User
+                    .withUsername(user.getUsername())
+                    .password(user.getPassword())
+                    .authorities("USER") // use user role if you implement role-based authorization
+                    .build();
+        } catch (NotFoundException e) {
+            // If user couldn't find throw custom exception
+            throw new UsernameNotFoundException(e.getMessage());
+        }
     }
 }

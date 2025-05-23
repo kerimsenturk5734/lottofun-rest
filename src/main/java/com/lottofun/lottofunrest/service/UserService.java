@@ -1,5 +1,6 @@
 package com.lottofun.lottofunrest.service;
 
+import com.lottofun.lottofunrest.exception.NotFoundException;
 import com.lottofun.lottofunrest.model.User;
 import com.lottofun.lottofunrest.repository.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,7 +17,7 @@ public class UserService {
     public User getUserByUsername(String username) {
         // Find user by username. Throw not found if not exist
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found by username: " + username));
+                .orElseThrow(() -> new NotFoundException("User", "Username", username));
     }
 
     public boolean userExistsByUsername(String username) {
