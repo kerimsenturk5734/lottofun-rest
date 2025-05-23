@@ -18,14 +18,14 @@ import java.util.Date;
 
 @Service
 public class AuthService {
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
 
 
-    public AuthService(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
+    public AuthService(UserService userService, BCryptPasswordEncoder passwordEncoder, AuthenticationManager authenticationManager, JwtUtil jwtUtil) {
+        this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
@@ -50,12 +50,6 @@ public class AuthService {
     }
 
     public UserDto register(RegisterRequest request) {
-
-        // Check username existence
-        if (userRepository.findByUsername(request.username()).isPresent()) {
-            throw new RuntimeException("Username already exists");
-        }
-
         // Build new user
         User user = User.builder()
                 .name(request.name())
@@ -64,7 +58,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(request.password())).build();
 
         // create user
-        User createdUser = userRepository.save(user);
+        User createdUser = userService.createUser(user);
 
         return new UserDto(createdUser.getId(), createdUser.getName(), createdUser.getSurname(),
                 createdUser.getUsername(), createdUser.getBalance());
