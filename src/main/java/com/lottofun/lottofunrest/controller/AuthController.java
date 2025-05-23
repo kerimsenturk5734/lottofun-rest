@@ -4,7 +4,9 @@ import com.lottofun.lottofunrest.dto.UserDto;
 import com.lottofun.lottofunrest.dto.request.LoginRequest;
 import com.lottofun.lottofunrest.dto.request.RegisterRequest;
 import com.lottofun.lottofunrest.dto.response.LoginResponse;
+import com.lottofun.lottofunrest.dto.wrapper.ApiResult;
 import com.lottofun.lottofunrest.service.AuthService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,11 +24,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        return ResponseEntity.ok(authService.login(loginRequest));
+    public ResponseEntity<ApiResult<LoginResponse>> login(@RequestBody LoginRequest loginRequest) {
+        var status = HttpStatus.CREATED;
+        var data = authService.login(loginRequest);
+        String message = "User login successful";
+
+        return new ResponseEntity<>(ApiResult.success(message, data, status), status);
     }
     @PostMapping("/register")
-    public ResponseEntity<UserDto> register(@RequestBody RegisterRequest registerRequest) {
-        return ResponseEntity.ok(authService.register(registerRequest));
+    public ResponseEntity<ApiResult<UserDto>> register(@RequestBody RegisterRequest registerRequest) {
+        var status = HttpStatus.CREATED;
+        var data = authService.register(registerRequest);
+        var message = "User registered successfully";
+
+        return new ResponseEntity<>(ApiResult.success(message, data, status), status);
     }
 }

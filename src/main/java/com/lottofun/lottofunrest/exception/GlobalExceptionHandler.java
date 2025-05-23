@@ -1,5 +1,6 @@
 package com.lottofun.lottofunrest.exception;
 
+import com.lottofun.lottofunrest.dto.wrapper.ApiResult;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,12 +15,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // Handle NotFound exceptions with status 404
     @ExceptionHandler(value = {NotFoundException.class})
     protected ResponseEntity<Object> handleNotFound(RuntimeException ex, WebRequest request) {
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
+        HttpStatus status = HttpStatus.NOT_FOUND;
+        HttpHeaders headers = new HttpHeaders();
+
+        return handleExceptionInternal(ex, ApiResult.error(ex.getMessage(), status), headers, status, request);
     }
 
     // Handle Conflict exceptions with status 409
     @ExceptionHandler(value = {ConflictException.class})
     protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
-        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT, request);
+        HttpStatus status = HttpStatus.CONFLICT;
+        HttpHeaders headers = new HttpHeaders();
+
+        return handleExceptionInternal(ex, ApiResult.error(ex.getMessage(), status), headers, status, request);
     }
 }
