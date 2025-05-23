@@ -16,4 +16,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleNotFound(RuntimeException ex, WebRequest request) {
         return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.NOT_FOUND, request);
     }
+
+    // Handle Conflict exceptions with status 409
+    @ExceptionHandler(value = {ConflictException.class})
+    protected ResponseEntity<Object> handleConflict(RuntimeException ex, WebRequest request) {
+        return handleExceptionInternal(ex, ex.getMessage(), new HttpHeaders(), HttpStatus.CONFLICT, request);
+    }
 }

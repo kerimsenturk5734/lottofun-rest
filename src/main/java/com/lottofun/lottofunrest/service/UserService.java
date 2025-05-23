@@ -1,5 +1,6 @@
 package com.lottofun.lottofunrest.service;
 
+import com.lottofun.lottofunrest.exception.ConflictException;
 import com.lottofun.lottofunrest.exception.NotFoundException;
 import com.lottofun.lottofunrest.model.User;
 import com.lottofun.lottofunrest.repository.UserRepository;
@@ -26,7 +27,7 @@ public class UserService {
 
     public User createUser(User user) {
         if (userExistsByUsername(user.getUsername())) {
-            throw new RuntimeException("User already exists by username: " + user.getUsername());
+            throw new ConflictException("User", "Username", user.getUsername());
         }
 
         return userRepository.save(user);
