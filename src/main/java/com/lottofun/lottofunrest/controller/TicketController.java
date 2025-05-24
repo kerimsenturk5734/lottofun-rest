@@ -1,5 +1,6 @@
 package com.lottofun.lottofunrest.controller;
 
+import com.lottofun.lottofunrest.dto.TicketDto;
 import com.lottofun.lottofunrest.dto.request.PageableRequest;
 import com.lottofun.lottofunrest.dto.wrapper.PagedApiResult;
 import com.lottofun.lottofunrest.model.Ticket;
@@ -25,7 +26,7 @@ public class TicketController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<PagedApiResult<Ticket>> getMyTickets(
+    public ResponseEntity<PagedApiResult<TicketDto>> getMyTickets(
             @AuthenticationPrincipal UserDetails userDetails, @ModelAttribute PageableRequest pageableRequest) {
         var pageable = Pageable.ofSize(pageableRequest.getSize()).withPage(pageableRequest.getPage());
 
