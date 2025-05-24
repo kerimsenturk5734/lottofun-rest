@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.validation.annotation.Validated;
 
 @Configuration
-@ConfigurationProperties(prefix = "jwt")
+@ConfigurationProperties(prefix = "lottofun.jwt")
 @Data
 @Validated
 public class JwtConfig {

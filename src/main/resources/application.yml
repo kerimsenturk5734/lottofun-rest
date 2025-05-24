@@ -20,6 +20,10 @@ spring:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
 
-jwt:
-  secret: my-very-secret-256-bit-secret-key
-  expiration: 3600000 # 1 hour
+lottofun:
+  jwt:
+    secret: my-very-secret-256-bit-secret-key
+    expiration: 3600000 # 1 hour
+
+  draw:
+    next-draw-interval: 60000 # next draw scheduled to be drawn in 60 seconds

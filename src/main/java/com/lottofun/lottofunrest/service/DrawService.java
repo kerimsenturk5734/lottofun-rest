@@ -1,5 +1,6 @@
 package com.lottofun.lottofunrest.service;
 
+import com.lottofun.lottofunrest.config.DrawConfig;
 import com.lottofun.lottofunrest.model.Draw;
 import com.lottofun.lottofunrest.model.DrawStatus;
 import com.lottofun.lottofunrest.model.Ticket;
@@ -11,12 +12,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
 public class DrawService {
     private final DrawRepository drawRepository;
     private final TicketService ticketService;
+    private final DrawConfig drawConfig;
 
     /**
      * Represents the lifecycle stages of a lottery draw.
@@ -34,9 +37,10 @@ public class DrawService {
      *   <li><b>FINALIZED</b> - All draw processes are completed; the draw is now read-only.</li>
      * </ul>
      */
-    public DrawService(DrawRepository drawRepository, TicketService ticketService) {
+    public DrawService(DrawRepository drawRepository, TicketService ticketService, DrawConfig drawConfig) {
         this.drawRepository = drawRepository;
         this.ticketService = ticketService;
+        this.drawConfig = drawConfig;
     }
 
     // returns draws that its winning numbers resulted. ordered by draw date
@@ -44,6 +48,14 @@ public class DrawService {
         var historyDrawStatuses = List.of(DrawStatus.EXTRACTED, DrawStatus.PAYMENTS_PROCESSING, DrawStatus.FINALIZED);
         return drawRepository.findAllByStatusInOrderByDrawDate(historyDrawStatuses, pageable);
     }
+
+    public boolean existsByStatus(DrawStatus status) {
+        return drawRepository.existsByStatus(status);
+    }
+
+   public Draw saveDraw(Draw draw) {
+        return drawRepository.save(draw);
+   }
 
     public void processDraws() {
         Optional<Draw> currentDrawOpt = drawRepository.findFirstByStatusOrderByDrawDateAsc(DrawStatus.OPEN);
@@ -57,17 +69,17 @@ public class DrawService {
 
             // 1. Satışı kapat
             currentDraw.setStatus(DrawStatus.CLOSED);
-            drawRepository.save(currentDraw);
+            saveDraw(currentDraw);
 
             // 2. Kazanan sayıları belirle
             Set<Integer> winningNumbers = generateWinningNumbers();
             currentDraw.setWinningNumbers(winningNumbers);
             currentDraw.setStatus(DrawStatus.EXTRACTED);
-            drawRepository.save(currentDraw);
+            saveDraw(currentDraw);
 
             // 3. Ödülleri hesapla
             currentDraw.setStatus(DrawStatus.PAYMENTS_PROCESSING);
-            drawRepository.save(currentDraw);
+            saveDraw(currentDraw);
 
             List<Ticket> tickets = ticketService.getTicketsByDrawId(currentDraw.getId());
             for (Ticket ticket : tickets) {
@@ -82,14 +94,14 @@ public class DrawService {
 
             // 4. Çekilişi finalize et
             currentDraw.setStatus(DrawStatus.FINALIZED);
-            drawRepository.save(currentDraw);
+            saveDraw(currentDraw);
 
             // 5. Yeni çekilişi başlat
             Draw nextDraw = Draw.builder()
-                    .drawDate(LocalDateTime.now().plusMinutes(5)) // örnek: 5 dakika sonra yeni çekiliş
+                    .drawDate(LocalDateTime.now().plus(drawConfig.getNextDrawInterval(), ChronoUnit.MILLIS))
                     .status(DrawStatus.OPEN)
                     .build();
-            drawRepository.save(nextDraw);
+            saveDraw(nextDraw);
         }
     }
 
