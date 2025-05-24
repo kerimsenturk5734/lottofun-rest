@@ -3,11 +3,15 @@ package com.lottofun.lottofunrest.exception;
 import com.lottofun.lottofunrest.dto.wrapper.ApiResult;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import java.util.List;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
@@ -37,4 +41,19 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return handleExceptionInternal(ex, ApiResult.error(ex.getMessage(), status), headers, status, request);
     }
+
+    @Override
+    protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+        List<String> errors = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(field -> field.getField() + ": " + field.getDefaultMessage())
+                .toList();
+
+        String message = "Validation failed";
+        ApiResult<Object> apiResult = ApiResult.error(message + ": " + String.join(", ", errors), HttpStatus.BAD_REQUEST);
+
+        return handleExceptionInternal(ex, apiResult, headers, HttpStatus.BAD_REQUEST, request);
+    }
+
 }

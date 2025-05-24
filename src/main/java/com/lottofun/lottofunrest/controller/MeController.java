@@ -6,16 +6,19 @@ import com.lottofun.lottofunrest.dto.request.PageableRequest;
 import com.lottofun.lottofunrest.dto.wrapper.ApiResult;
 import com.lottofun.lottofunrest.dto.wrapper.PagedApiResult;
 import com.lottofun.lottofunrest.service.TicketService;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
 @RestController
 @RequestMapping("/api/v1/me")
+@Validated
 public class MeController {
     private final TicketService ticketService;
 
@@ -38,7 +41,7 @@ public class MeController {
 
     @PostMapping("/tickets/buy")
     public ResponseEntity<ApiResult<TicketDto>> buyTicket(
-            @AuthenticationPrincipal UserDetails userDetails, @RequestBody BuyTicketRequest buyTicketRequest) {
+            @AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody BuyTicketRequest buyTicketRequest) {
 
         var boughtTicket = ticketService.buyTicket(userDetails.getUsername(), buyTicketRequest.drawId(), buyTicketRequest.numbers());
 
