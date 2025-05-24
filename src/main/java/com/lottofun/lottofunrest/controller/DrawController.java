@@ -1,15 +1,13 @@
 package com.lottofun.lottofunrest.controller;
 
+import com.lottofun.lottofunrest.dto.request.PageableRequest;
 import com.lottofun.lottofunrest.dto.wrapper.PagedApiResult;
 import com.lottofun.lottofunrest.model.Draw;
 import com.lottofun.lottofunrest.service.DrawService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
@@ -22,9 +20,10 @@ public class DrawController {
     }
 
     @GetMapping("/history")
-    public ResponseEntity<PagedApiResult<Draw>> history(@RequestParam(defaultValue = "1") int page,
-                                                         @RequestParam(defaultValue = "10") int size) {
-        var data = drawService.getDrawHistory(Pageable.ofSize(size).withPage(page));
+    public ResponseEntity<PagedApiResult<Draw>> history(@ModelAttribute PageableRequest pageableRequest) {
+        var pageable = Pageable.ofSize(pageableRequest.getSize()).withPage(pageableRequest.getPage());
+
+        var data = drawService.getDrawHistory(pageable);
         var status = HttpStatus.OK;
         var message = "Draw history";
 

@@ -1,7 +1,17 @@
 package com.lottofun.lottofunrest.dto.request;
 
-import org.springframework.web.bind.annotation.RequestParam;
 
-public record PageableRequest(@RequestParam(defaultValue = "1") int page,
-                              @RequestParam(defaultValue = "10") int size) {
+import jakarta.annotation.Nullable;
+
+public record PageableRequest(
+        @Nullable Integer page,
+        @Nullable Integer size
+) {
+    public int getPage() {
+        return page != null && page >= 0 ? page : 0;
+    }
+
+    public int getSize() {
+        return size != null && size > 0 ? size : 10;
+    }
 }
