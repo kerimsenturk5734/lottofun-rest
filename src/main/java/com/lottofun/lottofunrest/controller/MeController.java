@@ -1,31 +1,29 @@
 package com.lottofun.lottofunrest.controller;
 
 import com.lottofun.lottofunrest.dto.TicketDto;
+import com.lottofun.lottofunrest.dto.request.BuyTicketRequest;
 import com.lottofun.lottofunrest.dto.request.PageableRequest;
+import com.lottofun.lottofunrest.dto.wrapper.ApiResult;
 import com.lottofun.lottofunrest.dto.wrapper.PagedApiResult;
-import com.lottofun.lottofunrest.model.Ticket;
 import com.lottofun.lottofunrest.service.TicketService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@RequestMapping("/api/v1/tickets")
-public class TicketController {
+@RequestMapping("/api/v1/me")
+public class MeController {
     private final TicketService ticketService;
 
-    public TicketController(TicketService ticketService) {
+    public MeController(TicketService ticketService) {
         this.ticketService = ticketService;
     }
 
-    @GetMapping("/me")
+    @GetMapping("/tickets")
     public ResponseEntity<PagedApiResult<TicketDto>> getMyTickets(
             @AuthenticationPrincipal UserDetails userDetails, @ModelAttribute PageableRequest pageableRequest) {
         var pageable = Pageable.ofSize(pageableRequest.getSize()).withPage(pageableRequest.getPage());
@@ -36,5 +34,17 @@ public class TicketController {
         var message = "Tickets found";
 
         return new ResponseEntity<>(PagedApiResult.of(message, myTickets, status), status);
+    }
+
+    @PostMapping("/tickets/buy")
+    public ResponseEntity<ApiResult<TicketDto>> buyTicket(
+            @AuthenticationPrincipal UserDetails userDetails, @RequestBody BuyTicketRequest buyTicketRequest) {
+
+        var boughtTicket = ticketService.buyTicket(userDetails.getUsername(), buyTicketRequest.drawId(), buyTicketRequest.numbers());
+
+        var status = HttpStatus.CREATED;
+        var message = "Ticket bought for draw:" + buyTicketRequest.drawId() + " successfully";
+
+        return new ResponseEntity<>(ApiResult.success(message, boughtTicket, status), status);
     }
 }

@@ -21,6 +21,10 @@ public class UserService {
                 .orElseThrow(() -> new NotFoundException("User", "Username", username));
     }
 
+    public User saveUser(User user) {
+        return userRepository.save(user);
+    }
+
     public boolean userExistsByUsername(String username) {
         return userRepository.existsUserByUsername(username);
     }

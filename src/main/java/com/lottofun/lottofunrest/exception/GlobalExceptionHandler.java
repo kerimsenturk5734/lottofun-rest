@@ -29,4 +29,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return handleExceptionInternal(ex, ApiResult.error(ex.getMessage(), status), headers, status, request);
     }
+
+    @ExceptionHandler(value = {InsufficientBalanceException.class})
+    protected ResponseEntity<Object> handleInsufficientBalance(RuntimeException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.PAYMENT_REQUIRED;
+        HttpHeaders headers = new HttpHeaders();
+
+        return handleExceptionInternal(ex, ApiResult.error(ex.getMessage(), status), headers, status, request);
+    }
 }

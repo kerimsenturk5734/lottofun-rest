@@ -28,3 +28,6 @@ lottofun:
   draw:
     next-draw-interval: 100000 # next draw scheduled to be drawn in 100 seconds
     close-before-draw-millis: 20000  # close draws 20 seconds before draw date
+
+  ticket:
+    price: 20.0

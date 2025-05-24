@@ -1,6 +1,7 @@
 package com.lottofun.lottofunrest.service;
 
 import com.lottofun.lottofunrest.config.DrawConfig;
+import com.lottofun.lottofunrest.exception.NotFoundException;
 import com.lottofun.lottofunrest.model.Draw;
 import com.lottofun.lottofunrest.model.DrawStatus;
 import com.lottofun.lottofunrest.model.Ticket;
@@ -41,6 +42,11 @@ public class DrawService {
         this.drawRepository = drawRepository;
         this.ticketService = ticketService;
         this.drawConfig = drawConfig;
+    }
+
+    public Draw getDrawById(long drawId) {
+        return drawRepository.findById(drawId)
+                .orElseThrow(() -> new NotFoundException("Draw", "Id", drawId));
     }
 
     // returns draws that its winning numbers resulted. ordered by draw date
@@ -137,7 +143,7 @@ public class DrawService {
                 ticket.setMatchedCount(matched);
                 ticket.setStatus(matched >= 2 ? TicketStatus.WON : TicketStatus.LOST);
                 ticket.setPrize(determinePrize(matched));
-                ticketService.updateTicket(ticket);
+                ticketService.saveTicket(ticket);
             }
 
             // update draw status as payment done

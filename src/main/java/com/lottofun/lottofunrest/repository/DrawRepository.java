@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface DrawRepository extends JpaRepository<Draw, Integer> {
+public interface DrawRepository extends JpaRepository<Draw, Long> {
     Page<Draw> findAllByStatusInOrderByDrawDateDesc(List<DrawStatus> statusList, Pageable pageable);
     Optional<Draw> findFirstByStatusOrderByDrawDateAsc(DrawStatus status);
     boolean existsByStatus(DrawStatus status);
