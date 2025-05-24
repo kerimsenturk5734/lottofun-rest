@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Set;
 
 @Data
@@ -17,7 +17,7 @@ public class TicketDto {
     private Long id;
     private Long drawId;
     private Set<Integer> numbers;
-    private LocalDateTime purchaseTime;
+    private Instant purchaseTime;
     private TicketStatus status;
     private Integer matchedCount;
     private String prize;

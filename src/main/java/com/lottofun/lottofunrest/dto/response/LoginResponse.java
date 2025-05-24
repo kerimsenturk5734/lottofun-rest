@@ -1,6 +1,6 @@
 package com.lottofun.lottofunrest.dto.response;
 
-import java.util.Date;
+import java.time.Instant;
 
-public record LoginResponse(String token, Date expireAt) {
+public record LoginResponse(String token, Instant expireAt) {
 }

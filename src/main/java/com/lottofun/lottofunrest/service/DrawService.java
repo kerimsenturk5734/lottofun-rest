@@ -6,13 +6,11 @@ import com.lottofun.lottofunrest.model.DrawStatus;
 import com.lottofun.lottofunrest.model.Ticket;
 import com.lottofun.lottofunrest.model.TicketStatus;
 import com.lottofun.lottofunrest.repository.DrawRepository;
-import com.lottofun.lottofunrest.repository.UserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 

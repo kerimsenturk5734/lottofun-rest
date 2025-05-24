@@ -42,7 +42,7 @@ public class AuthService {
         String token = jwtUtil.generateToken(request.username());
         Date expiryAt = jwtUtil.getClaims(token).getExpiration();
 
-        return new LoginResponse(token, expiryAt);
+        return new LoginResponse(token, expiryAt.toInstant());
     }
 
     public UserDto register(RegisterRequest request) {

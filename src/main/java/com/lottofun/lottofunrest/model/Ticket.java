@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Set;
 
 @Entity
@@ -27,7 +27,7 @@ public class Ticket {
     @Column(name = "number")
     private Set<Integer> numbers;
 
-    private LocalDateTime purchaseTime;
+    private Instant purchaseTime;
 
     @Enumerated(EnumType.STRING)
     private TicketStatus status;
