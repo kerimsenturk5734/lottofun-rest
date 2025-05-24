@@ -1,24 +1,37 @@
 package com.lottofun.lottofunrest.job;
 
-import com.lottofun.lottofunrest.config.DrawConfig;
 import com.lottofun.lottofunrest.service.DrawService;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
+
 @Component
 public class DrawScheduler {
     private final DrawService drawService;
-    private final DrawConfig drawConfig;
 
-    public DrawScheduler(DrawService drawService, DrawConfig drawConfig) {
+    public DrawScheduler(DrawService drawService) {
         this.drawService = drawService;
-        this.drawConfig = drawConfig;
     }
 
-    // Run after draw date has passed
-    @Scheduled(fixedRateString = "#{@drawConfig.nextDrawInterval + 100}")
-    public void scheduleDraw() {
-        System.out.println("draw scheduled");
-        drawService.processDraws();
+    @Scheduled(fixedDelay = 10000)
+    public void scheduleProcessDraws(){
+        System.out.println("Schedule: Close Draws, Status: Started, Time: " + Instant.now());
+        drawService.closeDraws();
+        System.out.println("Schedule: Close Draws, Status: Finished, Time: " + Instant.now());
+
+        System.out.println("Schedule: Extract Draws, Status: Started, Time: " + Instant.now());
+        drawService.extractDraws();
+        System.out.println("Schedule: Extract Draws, Status: Finished, Time: " + Instant.now());
+
+        System.out.println("Schedule: Payment Draws, Status: Started, Time: " + Instant.now());
+        drawService.processPayments();
+        System.out.println("Schedule: Payment Draws, Status: Finished, Time: " + Instant.now());
+
+        System.out.println("Schedule: Finalize Draws, Status: Started, Time: " + Instant.now());
+        drawService.finalizeDrawsAndCreateNew();
+        System.out.println("Schedule: Finalize Draws, Status: Finished, Time: " + Instant.now());
+
+
     }
 }

@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Set;
 
 @Entity
@@ -20,7 +20,9 @@ public class Draw {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private LocalDateTime drawDate;
+    private Instant drawDate;
+
+    private Instant statusUpdatedAt;
 
     @ElementCollection
     @CollectionTable(name = "winning_numbers", joinColumns = @JoinColumn(name = "draw_id"))

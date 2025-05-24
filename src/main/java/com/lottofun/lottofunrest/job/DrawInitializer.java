@@ -8,7 +8,7 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 
 @Component
@@ -28,8 +28,9 @@ public class DrawInitializer implements ApplicationRunner {
 
         if (!hasOpenDraw) {
             Draw initialDraw = Draw.builder()
-                    .drawDate(LocalDateTime.now().plus(drawConfig.getNextDrawInterval(), ChronoUnit.MILLIS))
+                    .drawDate(Instant.now().plus(drawConfig.getNextDrawInterval(), ChronoUnit.MILLIS))
                     .status(DrawStatus.OPEN)
+                    .statusUpdatedAt(Instant.now())
                     .build();
 
             drawService.saveDraw(initialDraw);

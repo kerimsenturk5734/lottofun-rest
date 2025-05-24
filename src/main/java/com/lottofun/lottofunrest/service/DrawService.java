@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -34,6 +35,7 @@ public class DrawService {
      *   <li><b>CLOSED</b> - Ticket purchase is closed; waiting for winning numbers to be drawn.</li>
      *   <li><b>EXTRACTED</b> - Winning numbers have been drawn; payment processing not started.</li>
      *   <li><b>PAYMENT_PROCESSING</b> - Prizes are being calculated for the winning tickets.</li>
+     *   <li><b>PAYMENT_DONE</b> - Ticket payments have been finished.</li>
      *   <li><b>FINALIZED</b> - All draw processes are completed; the draw is now read-only.</li>
      * </ul>
      */
@@ -46,7 +48,7 @@ public class DrawService {
     // returns draws that its winning numbers resulted. ordered by draw date
     public Page<Draw> getDrawHistory(Pageable pageable) {
         var historyDrawStatuses = List.of(DrawStatus.EXTRACTED, DrawStatus.PAYMENTS_PROCESSING, DrawStatus.FINALIZED);
-        return drawRepository.findAllByStatusInOrderByDrawDate(historyDrawStatuses, pageable);
+        return drawRepository.findAllByStatusInOrderByDrawDateDesc(historyDrawStatuses, pageable);
     }
 
     public boolean existsByStatus(DrawStatus status) {
@@ -57,52 +59,122 @@ public class DrawService {
         return drawRepository.save(draw);
    }
 
-    public void processDraws() {
-        Optional<Draw> currentDrawOpt = drawRepository.findFirstByStatusOrderByDrawDateAsc(DrawStatus.OPEN);
+    public void closeDraws() {
+        Instant now = Instant.now();
 
-        if (currentDrawOpt.isEmpty()) return;
+        // get open draws to try close
+        List<Draw> drawsToClose = drawRepository.findByStatus(DrawStatus.OPEN);
+        for (Draw draw : drawsToClose) {
 
-        Draw currentDraw = currentDrawOpt.get();
+            // get when this draw must close. it must close before draw date has come
+            Instant closeTime = draw.getDrawDate().minusMillis(drawConfig.getCloseBeforeDrawMillis());
 
-        // Eğer çekiliş zamanı geldiyse işlemleri başlat
-        if (currentDraw.getDrawDate().isBefore(LocalDateTime.now())) {
+            // close if close time has come
+            if (now.isAfter(closeTime)) {
+                // For demonstration
+                sleepDemonstration(10000);
 
-            // 1. Satışı kapat
-            currentDraw.setStatus(DrawStatus.CLOSED);
-            saveDraw(currentDraw);
+                draw.setStatus(DrawStatus.CLOSED);
+                draw.setStatusUpdatedAt(now);
+                drawRepository.save(draw);
+            }
+        }
+    }
 
-            // 2. Kazanan sayıları belirle
-            Set<Integer> winningNumbers = generateWinningNumbers();
-            currentDraw.setWinningNumbers(winningNumbers);
-            currentDraw.setStatus(DrawStatus.EXTRACTED);
-            saveDraw(currentDraw);
+    public void extractDraws() {
+        Instant now = Instant.now();
 
-            // 3. Ödülleri hesapla
-            currentDraw.setStatus(DrawStatus.PAYMENTS_PROCESSING);
-            saveDraw(currentDraw);
+        // get closed draws to extract winning numbers
+        List<Draw> closedDraws = drawRepository.findByStatus(DrawStatus.CLOSED);
 
-            List<Ticket> tickets = ticketService.getTicketsByDrawId(currentDraw.getId());
+        for (Draw draw : closedDraws) {
+            // extract if draw date has come
+            if (now.isAfter(draw.getDrawDate())) {
+                // For demonstration
+                sleepDemonstration(10000);
+
+                // generate winning numbers randomly
+                Set<Integer> numbers = generateWinningNumbers();
+
+                // update draw
+                draw.setWinningNumbers(numbers);
+                draw.setStatus(DrawStatus.EXTRACTED);
+                draw.setStatusUpdatedAt(now);
+                drawRepository.save(draw);
+            }
+        }
+    }
+
+    public void processPayments() {
+        Instant now = Instant.now();
+
+        // get extracted draws to start payment process
+        List<Draw> extractedDraws = drawRepository.findByStatus(DrawStatus.EXTRACTED);
+
+        for (Draw draw : extractedDraws) {
+
+
+            // update draw status as payment processing
+            draw.setStatus(DrawStatus.PAYMENTS_PROCESSING);
+            draw.setStatusUpdatedAt(now);
+            var processingDraw = drawRepository.save(draw);
+
+            // For demonstration
+            sleepDemonstration(10000);
+
+            // get tickets related with this draw
+            List<Ticket> tickets = ticketService.getTicketsByDrawId(draw.getId());
+
             for (Ticket ticket : tickets) {
+                // calculate matched number count
                 int matched = (int) ticket.getNumbers().stream()
-                        .filter(winningNumbers::contains)
+                        .filter(draw.getWinningNumbers()::contains)
                         .count();
+
                 ticket.setMatchedCount(matched);
                 ticket.setStatus(matched >= 2 ? TicketStatus.WON : TicketStatus.LOST);
                 ticket.setPrize(determinePrize(matched));
                 ticketService.updateTicket(ticket);
             }
 
-            // 4. Çekilişi finalize et
-            currentDraw.setStatus(DrawStatus.FINALIZED);
-            saveDraw(currentDraw);
-
-            // 5. Yeni çekilişi başlat
-            Draw nextDraw = Draw.builder()
-                    .drawDate(LocalDateTime.now().plus(drawConfig.getNextDrawInterval(), ChronoUnit.MILLIS))
-                    .status(DrawStatus.OPEN)
-                    .build();
-            saveDraw(nextDraw);
+            // update draw status as payment done
+            processingDraw.setStatus(DrawStatus.PAYMENT_DONE);
+            processingDraw.setStatusUpdatedAt(now);
+            drawRepository.save(processingDraw);
         }
+    }
+
+    public void finalizeDrawsAndCreateNew() {
+        Instant now = Instant.now();
+
+        // get payment done draws to finalize
+        List<Draw> paymentProcessedDraws = drawRepository.findByStatus(DrawStatus.PAYMENT_DONE);
+
+        for (Draw draw : paymentProcessedDraws) {
+            // For demonstration
+            sleepDemonstration(10000);
+
+            // payment done, finalize the draw
+            draw.setStatus(DrawStatus.FINALIZED);
+            draw.setStatusUpdatedAt(now);
+            drawRepository.save(draw);
+
+            createNewDraw();
+        }
+    }
+
+    private Draw createNewDraw() {
+        Draw newDraw = Draw.builder()
+                .drawDate(Instant.now().plus(drawConfig.getNextDrawInterval(), ChronoUnit.MILLIS))
+                .status(DrawStatus.OPEN)
+                .statusUpdatedAt(Instant.now())
+                .build();
+
+        var draw =  saveDraw(newDraw);
+
+        System.out.println(draw.toString());
+
+        return draw;
     }
 
     private Set<Integer> generateWinningNumbers() {
@@ -125,4 +197,14 @@ public class DrawService {
             default -> "No Prize";
         };
     }
+
+    private void sleepDemonstration(long delay){
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+
 }

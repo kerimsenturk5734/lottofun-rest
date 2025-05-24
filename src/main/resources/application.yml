@@ -13,8 +13,8 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
@@ -26,4 +26,5 @@ lottofun:
     expiration: 3600000 # 1 hour
 
   draw:
-    next-draw-interval: 60000 # next draw scheduled to be drawn in 60 seconds
+    next-draw-interval: 100000 # next draw scheduled to be drawn in 100 seconds
+    close-before-draw-millis: 20000  # close draws 20 seconds before draw date
