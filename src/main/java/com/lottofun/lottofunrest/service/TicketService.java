@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TicketService {
@@ -26,5 +27,9 @@ public class TicketService {
 
     public List<Ticket> getTicketsByDrawId(Long drawId) {
         return ticketRepository.findByDrawId(drawId);
+    }
+
+    public Ticket updateTicket(Ticket ticket) {
+        return ticketRepository.save(ticket);
     }
 }
