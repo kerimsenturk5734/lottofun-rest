@@ -22,7 +22,7 @@ public class Ticket {
 
     private Long drawId;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "ticket_numbers", joinColumns = @JoinColumn(name = "ticket_id"))
     @Column(name = "number")
     private Set<Integer> numbers;

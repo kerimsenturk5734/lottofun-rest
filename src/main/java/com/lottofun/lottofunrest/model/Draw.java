@@ -24,7 +24,7 @@ public class Draw {
 
     private Instant statusUpdatedAt;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "winning_numbers", joinColumns = @JoinColumn(name = "draw_id"))
     @Column(name = "number")
     private Set<Integer> winningNumbers;

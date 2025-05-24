@@ -51,7 +51,7 @@ public class DrawService {
 
     // returns draws that its winning numbers resulted. ordered by draw date
     public Page<Draw> getDrawHistory(Pageable pageable) {
-        var historyDrawStatuses = List.of(DrawStatus.EXTRACTED, DrawStatus.PAYMENTS_PROCESSING, DrawStatus.FINALIZED);
+        var historyDrawStatuses = List.of(DrawStatus.EXTRACTED, DrawStatus.PAYMENTS_PROCESSING, DrawStatus.PAYMENT_DONE, DrawStatus.FINALIZED);
         return drawRepository.findAllByStatusInOrderByDrawDateDesc(historyDrawStatuses, pageable);
     }
 
