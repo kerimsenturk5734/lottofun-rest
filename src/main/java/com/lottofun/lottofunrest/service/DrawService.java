@@ -49,6 +49,11 @@ public class DrawService {
         return drawRepository.findAllByStatusInOrderByDrawDateDesc(historyDrawStatuses, pageable);
     }
 
+    // returns active draws
+    public List<Draw> getActiveDraws() {
+        return drawRepository.findByStatus(DrawStatus.OPEN);
+    }
+
     public boolean existsByStatus(DrawStatus status) {
         return drawRepository.existsByStatus(status);
     }
