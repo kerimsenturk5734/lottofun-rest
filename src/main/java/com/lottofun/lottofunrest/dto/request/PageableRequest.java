@@ -9,6 +9,7 @@ public record PageableRequest(
 
         @Nullable
         @Min(value = 0, message = "Page must be 0 or greater")
+        @Max(value = Integer.MAX_VALUE, message = "Page must not be greater than " + Integer.MAX_VALUE)
         Integer page,
 
         @Nullable
