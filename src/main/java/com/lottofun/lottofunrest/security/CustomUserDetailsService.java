@@ -2,7 +2,6 @@ package com.lottofun.lottofunrest.security;
 
 import com.lottofun.lottofunrest.exception.NotFoundException;
 import com.lottofun.lottofunrest.model.User;
-import com.lottofun.lottofunrest.repository.UserRepository;
 import com.lottofun.lottofunrest.service.UserService;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

@@ -5,12 +5,10 @@ import com.lottofun.lottofunrest.dto.request.LoginRequest;
 import com.lottofun.lottofunrest.dto.request.RegisterRequest;
 import com.lottofun.lottofunrest.dto.response.LoginResponse;
 import com.lottofun.lottofunrest.model.User;
-import com.lottofun.lottofunrest.repository.UserRepository;
 import com.lottofun.lottofunrest.security.JwtUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 

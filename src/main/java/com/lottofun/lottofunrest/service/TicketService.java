@@ -3,7 +3,6 @@ package com.lottofun.lottofunrest.service;
 import com.lottofun.lottofunrest.config.TicketConfig;
 import com.lottofun.lottofunrest.dto.TicketDto;
 import com.lottofun.lottofunrest.exception.DrawNotAvailableForPurchaseException;
-import com.lottofun.lottofunrest.exception.InsufficientBalanceException;
 import com.lottofun.lottofunrest.mapper.TicketMapper;
 import com.lottofun.lottofunrest.model.DrawStatus;
 import com.lottofun.lottofunrest.model.Ticket;

@@ -7,7 +7,6 @@ import com.lottofun.lottofunrest.exception.NotFoundException;
 import com.lottofun.lottofunrest.mapper.UserMapper;
 import com.lottofun.lottofunrest.model.User;
 import com.lottofun.lottofunrest.repository.UserRepository;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 @Service
