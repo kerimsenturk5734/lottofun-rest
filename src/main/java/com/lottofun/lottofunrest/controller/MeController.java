@@ -1,11 +1,13 @@
 package com.lottofun.lottofunrest.controller;
 
 import com.lottofun.lottofunrest.dto.TicketDto;
+import com.lottofun.lottofunrest.dto.UserDto;
 import com.lottofun.lottofunrest.dto.request.BuyTicketRequest;
 import com.lottofun.lottofunrest.dto.request.PageableRequest;
 import com.lottofun.lottofunrest.dto.wrapper.ApiResult;
 import com.lottofun.lottofunrest.dto.wrapper.PagedApiResult;
 import com.lottofun.lottofunrest.service.TicketService;
+import com.lottofun.lottofunrest.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -21,9 +23,20 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class MeController {
     private final TicketService ticketService;
+    private final UserService userService;
 
-    public MeController(TicketService ticketService) {
+    public MeController(TicketService ticketService, UserService userService) {
         this.ticketService = ticketService;
+        this.userService = userService;
+    }
+
+    @GetMapping("/")
+    public ResponseEntity<ApiResult<UserDto>> getMe(@AuthenticationPrincipal UserDetails userDetails) {
+        var me = userService.getUserDtoByUsername(userDetails.getUsername());
+        var status = HttpStatus.OK;
+        var message = "User found";
+
+        return new ResponseEntity<>(ApiResult.success(message, me, status), status);
     }
 
     @GetMapping("/tickets")

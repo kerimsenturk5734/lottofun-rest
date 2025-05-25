@@ -1,8 +1,10 @@
 package com.lottofun.lottofunrest.service;
 
+import com.lottofun.lottofunrest.dto.UserDto;
 import com.lottofun.lottofunrest.exception.ConflictException;
 import com.lottofun.lottofunrest.exception.InsufficientBalanceException;
 import com.lottofun.lottofunrest.exception.NotFoundException;
+import com.lottofun.lottofunrest.mapper.UserMapper;
 import com.lottofun.lottofunrest.model.User;
 import com.lottofun.lottofunrest.repository.UserRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -20,6 +22,13 @@ public class UserService {
         // Find user by username. Throw not found if not exist
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new NotFoundException("User", "Username", username));
+    }
+
+    public UserDto getUserDtoByUsername(String username) {
+        // Find user by username. Throw not found if not exist
+        var user = getUserByUsername(username);
+
+        return UserMapper.userAndUserDto().convert(user);
     }
 
     public User saveUser(User user) {
