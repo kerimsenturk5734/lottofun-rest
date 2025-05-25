@@ -20,5 +20,5 @@ public class TicketDto {
     private Instant purchaseTime;
     private TicketStatus status;
     private Integer matchedCount;
-    private String prize;
+    private double prize;
 }

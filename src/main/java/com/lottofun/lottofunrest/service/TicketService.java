@@ -53,16 +53,15 @@ public class TicketService {
 
         var ticketPrice = ticketConfig.getPrice();
 
-        // check user balance is enough
-        if(user.getBalance() < ticketPrice)
-            throw new InsufficientBalanceException();
-
         // get related draw
         var draw = drawService.getDrawById(drawId);
 
         // check related draw is open
         if(!draw.getStatus().equals(DrawStatus.OPEN))
             throw new DrawNotAvailableForPurchaseException();
+
+        // pay ticket price
+        userService.withdraw(user.getUsername(), ticketPrice);
 
         // everything looks good create the ticket
 
@@ -75,10 +74,6 @@ public class TicketService {
                 .build();
 
          var newTicket = saveTicket(ticket);
-
-         // pay ticket price
-        user.setBalance(user.getBalance() - ticketPrice);
-        userService.saveUser(user);
 
          return TicketMapper.ticketAndTicketDto().convert(newTicket);
     }
