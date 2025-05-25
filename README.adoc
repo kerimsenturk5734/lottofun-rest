@@ -1,0 +1,160 @@
+= Lottofun REST API Documentation
+Kerim Şentürk
+2025-05-25
+
+== Project Overview
+
+Lottofun REST API is a lottery game backend system built using Spring Boot. It supports managing draws, tickets, and prizes with JWT-based authentication. The application provides RESTful endpoints to interact with the lottery functionalities and ensures secure access through token authentication.
+
+== Functionalities
+
+- User authentication with JWT tokens
+- Create and manage lottery draws with configurable timing
+- Purchase tickets for upcoming draws
+- Automatic prize calculation based on configurable multipliers
+- View past draws and results
+- REST API documented with Swagger UI and Postman Collection
+
+== UML Diagram
+
+[uml]
+image::https://www.plantuml.com/plantuml/png/RL9DIyD04BtdLmov24AblHQLXYHAe2QbIQbwATliq2vcDs4_A2Z-TxTZIbFh9PbvRtRslSVEZ6NQEja4TSECWKIp0tm502EOjse7WbETAJ-dB71F9ypY1UY_rfbLnpt18qjSYVO-KnPtg1_X89GIQfSxkKLjZZpTKzAv_dZm7GIed1mmfADOfBd_nVEYJ1DVfA_LCeehgXVHsqkQL-LciIpYj2op_FcCRf8YJttxbENHF7jF4tz3Rx8IzGVQQvjKayUCNxjGlVoXzSxfUiyCLa9I9ltg2sU4zrj0CbllaSUjKvO8thfjWz1fyOcd32wsaCnrb5M_xjR5CGwVHdNsipAe_t5JMYryfvZ4OM-S_WivWrTOvpSVMis7AhUiOQf6U839U7mtFYguWIKsp8fMcRteJ13G2med8On64Dw6fx2dfrpxtbCquGT9_fH4RBpq6IhkPFC3[]
+
+== Configuration Properties
+
+The application uses Spring Boot's `@ConfigurationProperties` to externalize and group related configuration settings. Below are the key configuration groups and their respective default values.
+
+=== Draw Configuration
+
+Controls the timing of lottery draws.
+
+[cols="1,2,2",options="header"]
+|===
+| Property | Description | Default Value
+
+| `lottofun.draw.nextDrawInterval`
+| Time in milliseconds until the next draw result is published after the previous one ends. This includes the draw preparation and ticket purchase period.
+| `100000`
+
+| `lottofun.draw.closeBeforeDrawMillis`
+| The number of milliseconds before a draw starts when ticket sales must be closed. Must be smaller than `nextDrawInterval`, or the app will throw a validation error at startup.
+| `20000`
+|===
+
+=== Ticket Configuration
+
+Defines ticket-related constraints.
+
+[cols="1,2,2",options="header"]
+|===
+| Property | Description | Default Value
+
+| `lottofun.ticket.price`
+| The price of a single ticket. Must be between 0 and 100.
+| `10.0`
+|===
+
+=== Prize Configuration
+
+Specifies the reward multipliers for different prize tiers.
+
+[cols="1,2,2",options="header"]
+|===
+| Property | Description | Default Value
+
+| `lottofun.prize.jackpotFactor`
+| Multiplier for the jackpot tier. Players win this times the ticket price.
+| `3.0`
+
+| `lottofun.prize.highFactor`
+| Multiplier for high-tier winners.
+| `2.5`
+
+| `lottofun.prize.mediumFactor`
+| Multiplier for medium-tier winners.
+| `2.0`
+
+| `lottofun.prize.lowFactor`
+| Multiplier for low-tier winners.
+| `1.5`
+|===
+
+=== JWT Configuration
+
+Configuration properties for handling JSON Web Tokens (JWT). These values are **required** for the application to start successfully.
+
+[cols="1,2,2",options="header"]
+|===
+| Property | Description | Required / Constraints
+
+| `lottofun.jwt.secret`
+| Secret key used to sign and validate JWTs. Must be **at least 32 characters** long. Without this key, the authentication mechanism will not work.
+| Required, minimum length: 32
+
+| `lottofun.jwt.expiration`
+| Token expiration duration in milliseconds. Determines how long a JWT is valid after being issued.
+| Required
+|===
+
+== Environment Variables
+
+The following environment variables configure the core behavior of the Lottofun REST API. They can be set in your deployment environment (e.g., in `docker-compose.yml` or your CI/CD pipeline).
+
+[cols="1,3",options="header"]
+|===
+| Variable Name | Description
+
+| `LOTTOFUN_JWT_SECRET`
+| Refers to application property -> `lottofun.jwt.secret`
+
+| `LOTTOFUN_JWT_EXPIRATION`
+| Refers to application property -> `lottofun.jwt.ecpiration`
+
+| `LOTTOFUN_DRAW_NEXT_DRAW_INTERVAL`
+| Refers to application property -> `lottofun.draw.nextDrawInterval`
+
+| `LOTTOFUN_DRAW_CLOSE_BEFORE_DRAW_MILLIS`
+| Refers to application property -> `lottofun.draw.closeBeforeDrawMillis`
+
+| `LOTTOFUN_TICKET_PRICE`
+| Refers to application property -> `lottofun.ticket.price`
+
+| `LOTTOFUN_PRIZE_JACKPOT_FACTOR`
+| Refers to application property -> `lottofun.prize.jackpotFactor`
+
+| `LOTTOFUN_PRIZE_HIGH_FACTOR`
+| Refers to application property -> `lottofun.draw.highFactor`
+
+| `LOTTOFUN_PRIZE_MEDIUM_FACTOR`
+| Refers to application property -> `lottofun.draw.mediumFactor`
+
+| `LOTTOFUN_PRIZE_LOW_FACTOR`
+| Refers to application property -> `lottofun.draw.lowFactor`
+|===
+
+== Installation
+=== Requirements
+
+* Docker Engine (https://docs.docker.com/get-docker/)
+* Docker Compose (https://docs.docker.com/compose/install/)
+* Project source files (pom.xml, src, mvnw, .mvn folder, Dockerfile)
+
+=== Run with Docker Compose
+
+[source,bash]
+----
+docker compose up
+----
+
+Docker going to pull required images and build the project with maven wrappers.(This may take a while)
+
+== API Documentation
+
+Once the application is running, you can access the Swagger UI at:
+
+* http://localhost:8080/swagger-ui/index.html
+
+Or you can import link:./src/main/resources/postman-collection.json[Postman Collection] json file here
+
+
+

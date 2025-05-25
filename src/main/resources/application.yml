@@ -1,21 +1,39 @@
 server:
-  port: 8081
+  port: 8080
 
 spring:
   application:
     name: lottofun-rest
 
   datasource:
-    url: jdbc:mysql://localhost:3308/lottofun?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://localhost:3308/lottofun?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: my-secret-pw
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
-    show-sql: true
+      ddl-auto: create
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         format_sql: true
+
+lottofun:
+  jwt:
+    secret: my-very-secret-256-bit-secret-key
+    expiration: 3600000 # 1 hour
+
+  draw:
+    next-draw-interval: 100000 # next draw scheduled to be drawn in 100 seconds
+    close-before-draw-millis: 20000  # close draws 20 seconds before draw date
+
+  ticket:
+    price: 20.0
+
+  prize:
+    jackpot-factor: 3.0
+    high-factor: 2.5
+    medium-factor: 2.0
+    low-factor: 1.5
