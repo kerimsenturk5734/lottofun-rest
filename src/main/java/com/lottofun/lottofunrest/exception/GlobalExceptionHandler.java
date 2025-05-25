@@ -42,6 +42,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, ApiResult.error(ex.getMessage(), status), headers, status, request);
     }
 
+    @ExceptionHandler(value = {DrawNotAvailableForPurchaseException.class})
+    protected ResponseEntity<Object> handleDrawNotAvailableForPurchase(RuntimeException ex, WebRequest request) {
+        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpHeaders headers = new HttpHeaders();
+
+        return handleExceptionInternal(ex, ApiResult.error(ex.getMessage(), status), headers, status, request);
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         List<String> errors = ex.getBindingResult()
