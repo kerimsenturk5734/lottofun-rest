@@ -31,3 +31,9 @@ lottofun:
 
   ticket:
     price: 20.0
+
+  prize:
+    jackpot-factor: 3.0
+    high-factor: 2.5
+    medium-factor: 2.0
+    low-factor: 1.5
