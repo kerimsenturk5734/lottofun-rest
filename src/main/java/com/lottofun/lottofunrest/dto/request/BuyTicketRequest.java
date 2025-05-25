@@ -1,6 +1,6 @@
 package com.lottofun.lottofunrest.dto.request;
 
-import com.lottofun.lottofunrest.validation.ValidTicketNumber.ValidTicketNumbers;
+import com.lottofun.lottofunrest.validation.validTicketNumbers.ValidTicketNumbers;
 import jakarta.validation.constraints.Size;
 
 import java.util.Set;

@@ -1,4 +1,4 @@
-package com.lottofun.lottofunrest.validation.ValidTicketNumber;
+package com.lottofun.lottofunrest.validation.validTicketNumbers;
 
 
 import jakarta.validation.Constraint;
