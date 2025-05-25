@@ -37,7 +37,7 @@ public class DrawController {
     }
 
     @GetMapping("/active")
-    public ResponseEntity<ApiResult<List<Draw>>> history() {
+    public ResponseEntity<ApiResult<List<Draw>>> active() {
         var data = drawService.getActiveDraws();
         var status = HttpStatus.OK;
         var message = "Active Draws";

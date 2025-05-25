@@ -8,9 +8,16 @@ import com.lottofun.lottofunrest.dto.wrapper.ApiResult;
 import com.lottofun.lottofunrest.dto.wrapper.PagedApiResult;
 import com.lottofun.lottofunrest.service.TicketService;
 import com.lottofun.lottofunrest.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,6 +59,53 @@ public class MeController {
         return new ResponseEntity<>(PagedApiResult.of(message, myTickets, status), status);
     }
 
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "402",
+                    description = "Insufficient balance",
+                    content = @Content(
+                            schema = @Schema(implementation = ApiResult.class),
+                            examples = @ExampleObject(value = """
+                                        {
+                                          "status": 402
+                                          "success": false,
+                                          "message": "Insufficient balance",
+                                          "data": null
+                                        }
+                                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Draw not found",
+                    content = @Content(
+                            schema = @Schema(implementation = ApiResult.class),
+                            examples = @ExampleObject(value = """
+                                        {
+                                          "status": 404
+                                          "success": false,
+                                          "message": "Draw not found with id: 1",
+                                          "data": null
+                                        }
+                                    """)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "409",
+                    description = "Draw not available for purchasing",
+                    content = @Content(
+                            schema = @Schema(implementation = ApiResult.class),
+                            examples = @ExampleObject(value = """
+                                        {
+                                          "status": 409
+                                          "success": false,
+                                          "message": "Draw: 1 not available for purchasing",
+                                          "data": null
+                                        }
+                                    """)
+                    )
+            )
+    })
     @PostMapping("/tickets/buy")
     public ResponseEntity<ApiResult<TicketDto>> buyTicket(
             @AuthenticationPrincipal UserDetails userDetails, @Valid @RequestBody BuyTicketRequest buyTicketRequest) {

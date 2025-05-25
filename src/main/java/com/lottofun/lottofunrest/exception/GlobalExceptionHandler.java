@@ -44,7 +44,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = {DrawNotAvailableForPurchaseException.class})
     protected ResponseEntity<Object> handleDrawNotAvailableForPurchase(RuntimeException ex, WebRequest request) {
-        HttpStatus status = HttpStatus.BAD_REQUEST;
+        HttpStatus status = HttpStatus.CONFLICT;
         HttpHeaders headers = new HttpHeaders();
 
         return handleExceptionInternal(ex, ApiResult.error(ex.getMessage(), status), headers, status, request);
