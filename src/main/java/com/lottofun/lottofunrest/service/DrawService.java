@@ -1,6 +1,8 @@
 package com.lottofun.lottofunrest.service;
 
 import com.lottofun.lottofunrest.config.DrawConfig;
+import com.lottofun.lottofunrest.config.PrizeConfig;
+import com.lottofun.lottofunrest.config.TicketConfig;
 import com.lottofun.lottofunrest.exception.NotFoundException;
 import com.lottofun.lottofunrest.model.Draw;
 import com.lottofun.lottofunrest.model.DrawStatus;
@@ -20,6 +22,9 @@ public class DrawService {
     private final DrawRepository drawRepository;
     private final TicketService ticketService;
     private final DrawConfig drawConfig;
+    private final PrizeConfig prizeConfig;
+    private final TicketConfig ticketConfig;
+    private final UserService userService;
 
     /**
      * Represents the lifecycle stages of a lottery draw.
@@ -38,10 +43,13 @@ public class DrawService {
      *   <li><b>FINALIZED</b> - All draw processes are completed; the draw is now read-only.</li>
      * </ul>
      */
-    public DrawService(DrawRepository drawRepository, TicketService ticketService, DrawConfig drawConfig) {
+    public DrawService(DrawRepository drawRepository, TicketService ticketService, DrawConfig drawConfig, PrizeConfig prizeConfig, TicketConfig ticketConfig, UserService userService) {
         this.drawRepository = drawRepository;
         this.ticketService = ticketService;
         this.drawConfig = drawConfig;
+        this.prizeConfig = prizeConfig;
+        this.ticketConfig = ticketConfig;
+        this.userService = userService;
     }
 
     public Draw getDrawById(long drawId) {
@@ -64,9 +72,9 @@ public class DrawService {
         return drawRepository.existsByStatus(status);
     }
 
-   public Draw saveDraw(Draw draw) {
+    public Draw saveDraw(Draw draw) {
         return drawRepository.save(draw);
-   }
+    }
 
     public void closeDraws() {
         Instant now = Instant.now();
@@ -142,8 +150,16 @@ public class DrawService {
 
                 ticket.setMatchedCount(matched);
                 ticket.setStatus(matched >= 2 ? TicketStatus.WON : TicketStatus.LOST);
-                ticket.setPrize(determinePrize(matched));
-                ticketService.saveTicket(ticket);
+                var ticketPrize = determinePrize(matched);
+
+                ticket.setPrize(ticketPrize);
+                var savedTicket = ticketService.saveTicket(ticket);
+
+                if(savedTicket.getStatus().equals(TicketStatus.WON)){
+                    // deposit user according to ticket info
+                    userService.deposit(savedTicket.getUser().getUsername(), ticketPrize);
+                }
+
             }
 
             // update draw status as payment done
@@ -179,7 +195,7 @@ public class DrawService {
                 .statusUpdatedAt(Instant.now())
                 .build();
 
-        var draw =  saveDraw(newDraw);
+        var draw = saveDraw(newDraw);
 
         System.out.println(draw.toString());
 
@@ -197,17 +213,17 @@ public class DrawService {
         return numbers;
     }
 
-    private String determinePrize(int matchCount) {
+    private double determinePrize(int matchCount) {
         return switch (matchCount) {
-            case 5 -> "Jackpot";
-            case 4 -> "High";
-            case 3 -> "Medium";
-            case 2 -> "Low";
-            default -> "No Prize";
+            case 5 -> prizeConfig.getJackpotFactor() * ticketConfig.getPrice();
+            case 4 -> prizeConfig.getHighFactor() * ticketConfig.getPrice();
+            case 3 -> prizeConfig.getMediumFactor() * ticketConfig.getPrice();
+            case 2 -> prizeConfig.getLowFactor() * ticketConfig.getPrice();
+            default -> 0;
         };
     }
 
-    private void sleepDemonstration(long delay){
+    private void sleepDemonstration(long delay) {
         try {
             Thread.sleep(delay);
         } catch (InterruptedException e) {

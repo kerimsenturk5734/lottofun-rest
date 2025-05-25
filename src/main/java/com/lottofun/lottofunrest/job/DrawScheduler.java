@@ -14,7 +14,7 @@ public class DrawScheduler {
         this.drawService = drawService;
     }
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelayString = "#{drawConfig.closeBeforeDrawMillis / 2}")
     public void scheduleProcessDraws(){
         System.out.println("Schedule: Close Draws, Status: Started, Time: " + Instant.now());
         drawService.closeDraws();

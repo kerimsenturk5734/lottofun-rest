@@ -1,6 +1,7 @@
 package com.lottofun.lottofunrest.service;
 
 import com.lottofun.lottofunrest.exception.ConflictException;
+import com.lottofun.lottofunrest.exception.InsufficientBalanceException;
 import com.lottofun.lottofunrest.exception.NotFoundException;
 import com.lottofun.lottofunrest.model.User;
 import com.lottofun.lottofunrest.repository.UserRepository;
@@ -35,5 +36,25 @@ public class UserService {
         }
 
         return userRepository.save(user);
+    }
+
+    public double deposit(String username, double amount) {
+        var user = getUserByUsername(username);
+        user.setBalance(user.getBalance() + amount);
+
+        return saveUser(user).getBalance();
+    }
+
+    public double withdraw(String username, double amount) {
+        var user = getUserByUsername(username);
+
+        var newBalance = user.getBalance() - amount;
+
+        if(newBalance < 0)
+            throw new InsufficientBalanceException();
+
+        user.setBalance(newBalance);
+
+        return saveUser(user).getBalance();
     }
 }

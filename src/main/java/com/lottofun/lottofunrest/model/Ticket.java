@@ -34,7 +34,7 @@ public class Ticket {
 
     private Integer matchedCount;
 
-    private String prize;
+    private double prize;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
