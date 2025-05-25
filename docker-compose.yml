@@ -1,0 +1,36 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: lottofun-mysql
+    environment:
+      MYSQL_DATABASE: lottofun
+      MYSQL_ROOT_PASSWORD: my-secret-pw
+    ports:
+      - "3306:3306"
+    command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-pmy-secret-pw" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build: .
+    container_name: lottofun-rest
+    depends_on:
+      - db
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/lottofun?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: my-secret-pw
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+
+      # Lottofun environment values
+      LOTTOFUN_JWT_SECRET: my-very-secret-256-bit-secret-key
+      LOTTOFUN_JWT_EXPIRATION: 3600000
+      LOTTOFUN_DRAW_NEXT_DRAW_INTERVAL: 100000
+      LOTTOFUN_DRAW_CLOSE_BEFORE_DRAW_MILLIS: 20000
+      LOTTOFUN_TICKET_PRICE: 20.0
+    ports:
+      - "8080:8080"
